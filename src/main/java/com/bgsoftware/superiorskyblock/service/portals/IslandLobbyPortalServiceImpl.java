@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorskyblock.service.portals;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
-import com.bgsoftware.superiorskyblock.api.player.PlayerStatus;
 import com.bgsoftware.superiorskyblock.api.service.portals.IslandLobbyPortalService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
@@ -76,8 +75,6 @@ public class IslandLobbyPortalServiceImpl implements IslandLobbyPortalService, I
         if (player == null || !player.isOnline())
             return;
 
-        superiorPlayer.setPlayerStatus(PlayerStatus.LEAVING_ISLAND);
-
         try {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
@@ -86,10 +83,7 @@ public class IslandLobbyPortalServiceImpl implements IslandLobbyPortalService, I
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send " + player.getName() + " to " + destinationServer);
             e.printStackTrace();
-            superiorPlayer.removePlayerStatus(PlayerStatus.LEAVING_ISLAND);
         }
-
-        BukkitExecutor.sync(() -> superiorPlayer.removePlayerStatus(PlayerStatus.LEAVING_ISLAND), 40L);
     }
 
     @Override

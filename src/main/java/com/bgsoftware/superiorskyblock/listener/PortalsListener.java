@@ -67,6 +67,7 @@ public class PortalsListener extends AbstractGameEventListener {
     private void registerListeners() {
         registerCallback(GameEventType.ENTITY_PORTAL_EVENT, GameEventPriority.MONITOR, this::onEntityPortal);
         registerCallback(GameEventType.ENTITY_ENTER_PORTAL_EVENT, GameEventPriority.HIGHEST, this::onEntityEnterPortal);
+        registerCallback(GameEventType.PLAYER_JOIN_EVENT, GameEventPriority.MONITOR, this::onPlayerJoin);
         registerCallback(GameEventType.ENTITY_TELEPORT_EVENT, GameEventPriority.MONITOR, this::onEntityTeleport);
         registerCallback(GameEventType.BLOCK_IGNITE_EVENT, GameEventPriority.NORMAL, this::onBlockIgnite);
         registerCallback(GameEventType.BLOCK_FROM_TO_EVENT, GameEventPriority.NORMAL, this::onNetherPortalSpread);
@@ -172,6 +173,18 @@ public class PortalsListener extends AbstractGameEventListener {
         } else {
             this.portalsManager.get().handleEntityPortalFromIsland(entity, island, portalLocation, portalType);
         }
+    }
+
+    // Give joining players a 60-tick immunity window so they are not instantly re-sent to the
+    // lobby if they log back in at a position inside or adjacent to the portal blocks.
+    // This covers the case where the player was transferred to the lobby, reconnects, and
+    // spawns at their last position (which was inside the portal).
+    private void onPlayerJoin(GameEvent<GameEventArgs.PlayerJoinEvent> e) {
+        if (!lobbyPortalService.get().isEnabled())
+            return;
+        UUID id = e.getArgs().player.getUniqueId();
+        recentlyTeleportedPlayers.add(id);
+        BukkitExecutor.sync(() -> recentlyTeleportedPlayers.remove(id), 60L);
     }
 
     // Track any teleport so the player gets a 5-tick immunity from the lobby portal trigger.

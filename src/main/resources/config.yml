@@ -814,13 +814,28 @@ schematic-name-argument: true
 island-chests:
   # The chest title.
   chest-title: '&4Island Chest'
-  # Default amount of pages.
-  # You can set this value to 0 to not have any pages by default.
-  default-pages: 0
-  # Default size for the pages.
-  # This is the default number of rows for the chests.
-  # This number must be between 1 and 6.
-  default-size: 3
+
+# Settings for island lobby portals (nether portals that send players to lobby server)
+# When enabled, entering a nether portal on an island instantly transfers the player to
+# the configured destination server via Velocity/BungeeCord plugin messaging.
+#
+# Setup checklist:
+#   1. Set enabled: true and destination-server to your hub server name (must match velocity.toml)
+#   2. Make sure bungee-plugin-message-channel = true in velocity.toml
+#   3. Include a pre-activated nether portal in your island schematic
+#   4. Run /is admin portalwand and select the portal frame area, then /is admin setportalregion
+#      to protect the portal blocks from being broken or replaced. Region data is saved to
+#      portal-region.yml in the plugin data folder.
+island-lobby-portal:
+  # Enable island lobby portals
+  enabled: false
+
+  # The destination server name (must match your Velocity/BungeeCord configuration)
+  destination-server: 'lobby'
+
+  # The plugin message channel used to communicate with the proxy
+  # Standard value is 'BungeeCord' for both BungeeCord and Velocity (with bungee-plugin-message-channel = true)
+  channel-name: 'BungeeCord'
 
 # Custom aliases for plugin's commands.
 command-aliases:

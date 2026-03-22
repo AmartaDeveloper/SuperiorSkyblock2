@@ -6,6 +6,7 @@ import com.bgsoftware.superiorskyblock.service.dragon.DragonBattleServiceImpl;
 import com.bgsoftware.superiorskyblock.service.hologram.HologramsServiceImpl;
 import com.bgsoftware.superiorskyblock.service.message.MessagesServiceImpl;
 import com.bgsoftware.superiorskyblock.service.placeholders.PlaceholdersServiceImpl;
+import com.bgsoftware.superiorskyblock.service.portals.IslandLobbyPortalServiceImpl;
 import com.bgsoftware.superiorskyblock.service.portals.PortalsManagerServiceImpl;
 import com.bgsoftware.superiorskyblock.service.region.RegionManagerServiceImpl;
 import com.bgsoftware.superiorskyblock.service.stackedblocks.StackedBlocksInteractionServiceImpl;
@@ -42,6 +43,7 @@ public class ServicesHandler {
         registerService(new BossBarsServiceImpl(plugin));
         registerService(new MessagesServiceImpl());
         registerService(new PortalsManagerServiceImpl(plugin));
+        registerService(new IslandLobbyPortalServiceImpl(plugin));
         registerService(new RegionManagerServiceImpl(plugin));
         registerService(new StackedBlocksInteractionServiceImpl(plugin));
         registerService(new WorldRecordServiceImpl(plugin));

@@ -29,6 +29,7 @@ public class BukkitListeners {
         new IslandWorldEventsListener(this.plugin);
         new MenusListener(this.plugin);
         new PlayersListener(this.plugin);
+        new LobbyPortalWandListener(this.plugin);
         new PortalsListener(this.plugin);
         new ProtectionListener(this.plugin);
         new SignsListener(this.plugin);

@@ -40,6 +40,8 @@ public class AdminCommandsMap extends CommandsMap {
         registerCommand(new CmdAdminMsgAll());
         registerCommand(new CmdAdminName());
         registerCommand(new CmdAdminOpen());
+        registerCommand(new CmdAdminPortalWand());
+        registerCommand(new CmdAdminSetPortalRegion());
         registerCommand(new CmdAdminOpenMenu());
         registerCommand(new CmdAdminPromote());
         registerCommand(new CmdAdminPurge());

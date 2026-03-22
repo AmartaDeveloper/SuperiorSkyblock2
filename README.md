@@ -69,3 +69,81 @@ for bug fixes.
 This plugin is licensed under GNU GPL v3.0
 
 This plugin uses HikariCP which you can find [here](https://github.com/brettwooldridge/HikariCP).
+
+---
+
+## Fork Changes
+
+This is a custom fork with additional features built for a Velocity-based network.
+
+### Island Lobby Portal System
+
+Players who step into a nether portal on their island are instantly transferred to the configured lobby/hub server via Velocity's BungeeCord plugin messaging channel. Mimics Hypixel Skyblock's behaviour — no 80-tick countdown, no world change animation.
+
+**How it works:**
+- Intercepts the portal at tick 0 (`EntityEnterPortalEvent`) before vanilla nether travel begins.
+- Sends a `Connect` plugin message using the correct `ByteArrayDataOutput` wire format Velocity expects.
+- A 5-tick immunity window prevents `/is go` (and other plugin teleports) from falsely triggering the send when the landing spot is near a portal block.
+- End portals still send players back to their island home as normal.
+
+**Config (`config.yml`):**
+```yaml
+island-lobby-portal:
+  enabled: true
+  destination-server: 'skyblock-hub'   # must match your velocity.toml server name
+  channel-name: 'BungeeCord'           # for Velocity with bungee-plugin-message-channel = true
+```
+
+**Velocity requirement** — in `velocity.toml`:
+```toml
+[advanced]
+  bungee-plugin-message-channel = true
+```
+
+---
+
+### Per-Schematic Portal Region Protection
+
+Because each island schematic can place the nether portal at a different position relative to the island center, protection regions are stored **per schematic type** (e.g. `normal`, `mycel`, `desert`). The same offsets protect the portal on every island of that type regardless of where it is in the world.
+
+Protected blocks cannot be broken or placed by players. Additional protections:
+- Players cannot light new nether portals with flint & steel or fire charges.
+- Nether portal blocks cannot spread to form new portal columns.
+
+**Admin setup (one-time per schematic):**
+1. `/is admin portalwand` — receive the selection wand (blaze rod).
+2. Left-click a block → position 1, right-click → position 2 (select the full portal frame and portal blocks).
+3. `/is admin setportalregion <schematic>` — Tab completes from the live schematic list.
+4. Repeat for each schematic type that contains a portal.
+
+Region data is saved to `plugins/SuperiorSkyblock/portal-region.yml` and loaded on restart.
+
+**Permissions:**
+
+| Permission | Default | Description |
+|---|---|---|
+| `superior.admin.portalwand` | op | Receive the portal region selection wand |
+| `superior.admin.setportalregion` | op | Save a portal region for a schematic |
+| `superior.island.portal.bypass` | false | Bypass portal block break/place protection |
+
+---
+
+### New Files
+
+| File | Description |
+|---|---|
+| `API/.../api/service/portals/IslandLobbyPortalService.java` | Public API interface for the lobby portal service |
+| `src/.../service/portals/IslandLobbyPortalServiceImpl.java` | Service implementation — messaging, per-schematic region storage |
+| `src/.../listener/LobbyPortalWandListener.java` | Wand left/right click handling for region selection |
+| `src/.../commands/admin/CmdAdminPortalWand.java` | `/is admin portalwand` command |
+| `src/.../commands/admin/CmdAdminSetPortalRegion.java` | `/is admin setportalregion <schematic>` command |
+
+### Modified Files
+
+| File | Change |
+|---|---|
+| `src/.../listener/PortalsListener.java` | Instant lobby portal intercept, teleport immunity, block break/place/ignite/spread protection |
+| `src/.../listener/BukkitListeners.java` | Registered `LobbyPortalWandListener` |
+| `src/.../commands/admin/AdminCommandsMap.java` | Registered new portal wand commands |
+| `src/.../service/ServicesHandler.java` | Registered `IslandLobbyPortalServiceImpl` |
+| `src/main/resources/config.yml` | Added `island-lobby-portal` config section |

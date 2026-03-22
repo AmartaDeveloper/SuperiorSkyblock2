@@ -143,8 +143,13 @@ public class PortalsListener extends AbstractGameEventListener {
         // recentlyTeleportedPlayers guards against /is go (or any plugin teleport) landing the player
         // inside a portal block and falsely triggering the send.
         if (isPlayer && portalType == PortalType.NETHER && lobbyPortalService.get().isEnabled() && !island.isSpawn()) {
+            UUID entityId = entity.getUniqueId();
             if (plugin.getNMSEntities().getPortalTicks(entity) == 0
-                    && !recentlyTeleportedPlayers.contains(entity.getUniqueId())) {
+                    && !recentlyTeleportedPlayers.contains(entityId)) {
+                // Add immediately so that other portal blocks touching the player on the same tick
+                // don't fire duplicate sends (EntityEnterPortalEvent fires once per portal block).
+                recentlyTeleportedPlayers.add(entityId);
+                BukkitExecutor.sync(() -> recentlyTeleportedPlayers.remove(entityId), 20L);
                 SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(entity);
                 lobbyPortalService.get().sendPlayerToLobby(superiorPlayer);
             }
